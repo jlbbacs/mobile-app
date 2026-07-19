@@ -24,36 +24,17 @@ function assertValidType(mimeType: string) {
 }
 
 export const imageService = {
-  async requestPermissions(): Promise<{ camera: boolean; library: boolean }> {
+  async requestCameraPermission(): Promise<boolean> {
     const cam = await ImagePicker.requestCameraPermissionsAsync();
-    const lib = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    return { camera: cam.status === 'granted', library: lib.status === 'granted' };
+    return cam.status === 'granted';
   },
 
   async capturePhoto(): Promise<PickedImage | null> {
-    const { camera } = await this.requestPermissions();
-    if (!camera) {
+    const granted = await this.requestCameraPermission();
+    if (!granted) {
       throw new ImageValidationError('Camera permission was denied.');
     }
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ['images'],
-      quality: 1,
-      allowsEditing: true,
-      aspect: [1, 1],
-    });
-    if (result.canceled || result.assets.length === 0) return null;
-    const asset = result.assets[0];
-    const mimeType = asset.mimeType ?? 'image/jpeg';
-    assertValidType(mimeType);
-    return toPickedImage(asset.uri, mimeType);
-  },
-
-  async pickFromGallery(): Promise<PickedImage | null> {
-    const { library } = await this.requestPermissions();
-    if (!library) {
-      throw new ImageValidationError('Photo library permission was denied.');
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 1,
       allowsEditing: true,

@@ -28,27 +28,6 @@ export const registrationSchema: yup.ObjectSchema<RegistrationFormValues> = yup.
     .required('Phone number is required.')
     .matches(/^\d+$/, 'Phone number must contain digits only.'),
   email: yup.string().trim().email('Enter a valid email address.').optional(),
-  houseNumber: yup.string().trim().optional(),
-  street: yup.string().trim().optional(),
-  barangay: yup.string().trim().optional(),
-  city: yup.string().trim().optional(),
-  province: yup.string().trim().optional(),
-  zipCode: yup.string().trim().optional(),
-  country: yup.string().trim().optional(),
-  occupation: yup.string().trim().optional(),
-  company: yup.string().trim().optional(),
-  emergencyContactName: yup.string().trim().optional(),
-  emergencyContactNumber: yup.string().trim().optional(),
-  relationship: yup.string().trim().optional(),
+  completeAddress: yup.string().trim().required('Complete address is required.'),
   remarks: yup.string().trim().optional(),
 }) as yup.ObjectSchema<RegistrationFormValues>;
-
-export function isCompleteAddressFilled(values: RegistrationFormValues): boolean {
-  return Boolean(
-    values.houseNumber?.trim() ||
-      values.street?.trim() ||
-      values.barangay?.trim() ||
-      values.city?.trim() ||
-      values.province?.trim()
-  );
-}

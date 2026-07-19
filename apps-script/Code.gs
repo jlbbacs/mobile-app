@@ -27,18 +27,7 @@ var SHEET_HEADERS = [
   'Nationality',
   'Phone Number',
   'Email',
-  'House Number',
-  'Street',
-  'Barangay',
-  'City',
-  'Province',
-  'Zip Code',
-  'Country',
-  'Occupation',
-  'Company',
-  'Emergency Contact',
-  'Emergency Number',
-  'Relationship',
+  'Complete Address',
   'Remarks',
   'Google Drive Image URL',
   'Latitude',
@@ -93,6 +82,9 @@ function validatePayload(data) {
   if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
     return 'Email address is not valid.';
   }
+  if (!data.completeAddress || !String(data.completeAddress).trim()) {
+    return 'Complete address is required.';
+  }
   if (!data.imageBase64) return 'A profile photo is required.';
 
   var approxImageBytes = Math.floor((String(data.imageBase64).length * 3) / 4);
@@ -138,18 +130,7 @@ function appendRegistrationRow(data, imageUrl) {
     data.nationality || '',
     data.phoneNumber || '',
     data.email || '',
-    data.houseNumber || '',
-    data.street || '',
-    data.barangay || '',
-    data.city || '',
-    data.province || '',
-    data.zipCode || '',
-    data.country || '',
-    data.occupation || '',
-    data.company || '',
-    data.emergencyContactName || '',
-    data.emergencyContactNumber || '',
-    data.relationship || '',
+    data.completeAddress || '',
     data.remarks || '',
     imageUrl,
     data.latitude || '',

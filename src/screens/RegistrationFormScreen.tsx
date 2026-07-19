@@ -15,10 +15,7 @@ import { Card } from '../components/Card';
 import { ImagePickerField } from '../components/ImagePickerField';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { ErrorBanner } from '../components/ErrorBanner';
-import {
-  registrationSchema,
-  isCompleteAddressFilled,
-} from '../services/validationService';
+import { registrationSchema } from '../services/validationService';
 import { imageService, ImageValidationError, type PickedImage } from '../services/imageService';
 import { locationService } from '../services/locationService';
 import { deviceInfoService } from '../services/deviceInfoService';
@@ -42,18 +39,7 @@ const DEFAULT_VALUES: RegistrationFormValues = {
   nationality: '',
   phoneNumber: '',
   email: '',
-  houseNumber: '',
-  street: '',
-  barangay: '',
-  city: '',
-  province: '',
-  zipCode: '',
-  country: '',
-  occupation: '',
-  company: '',
-  emergencyContactName: '',
-  emergencyContactNumber: '',
-  relationship: '',
+  completeAddress: '',
   remarks: '',
 };
 
@@ -71,7 +57,6 @@ export default function RegistrationFormScreen({ navigation }: Props) {
 
   const [image, setImage] = useState<PickedImage | null>(null);
   const [imageError, setImageError] = useState<string | undefined>();
-  const [addressError, setAddressError] = useState<string | undefined>();
   const [location, setLocation] = useState<{ latitude?: number; longitude?: number }>({});
   const [locatingGps, setLocatingGps] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,19 +73,6 @@ export default function RegistrationFormScreen({ navigation }: Props) {
       setImage(compressed);
     } catch (err) {
       setImageError(err instanceof ImageValidationError ? err.message : 'Could not capture photo.');
-    }
-  };
-
-  const handlePickFromGallery = async () => {
-    try {
-      setImageError(undefined);
-      const picked = await imageService.pickFromGallery();
-      if (!picked) return;
-      const compressed = await imageService.compress(picked);
-      imageService.assertWithinSizeLimit(compressed);
-      setImage(compressed);
-    } catch (err) {
-      setImageError(err instanceof ImageValidationError ? err.message : 'Could not select photo.');
     }
   };
 
@@ -121,11 +93,6 @@ export default function RegistrationFormScreen({ navigation }: Props) {
       setImageError('A profile photo is required.');
       return;
     }
-    if (!isCompleteAddressFilled(values)) {
-      setAddressError('Please provide at least a street, barangay, or city.');
-      return;
-    }
-    setAddressError(undefined);
     setSubmitError(undefined);
 
     submitLock.current = true;
@@ -188,7 +155,6 @@ export default function RegistrationFormScreen({ navigation }: Props) {
             <ImagePickerField
               image={image}
               onCapture={handleCapture}
-              onPickFromGallery={handlePickFromGallery}
               onDelete={() => setImage(null)}
               error={imageError}
             />
@@ -283,35 +249,24 @@ export default function RegistrationFormScreen({ navigation }: Props) {
                 />
               )}
             />
+            <Controller
+              control={control}
+              name="completeAddress"
+              render={({ field }) => (
+                <Input
+                  label="Complete Address"
+                  required
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  multiline
+                  numberOfLines={3}
+                  error={errors.completeAddress?.message}
+                />
+              )}
+            />
           </Card>
 
           <Card style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Complete Address</Text>
-            {addressError ? <Text style={{ color: theme.colors.error, marginBottom: 8, fontSize: 12 }}>{addressError}</Text> : null}
-            <Controller control={control} name="houseNumber" render={({ field }) => <Input label="House Number" value={field.value} onChangeText={field.onChange} />} />
-            <Controller control={control} name="street" render={({ field }) => <Input label="Street" value={field.value} onChangeText={field.onChange} />} />
-            <Controller control={control} name="barangay" render={({ field }) => <Input label="Barangay" value={field.value} onChangeText={field.onChange} />} />
-            <Controller control={control} name="city" render={({ field }) => <Input label="City" value={field.value} onChangeText={field.onChange} />} />
-            <Controller control={control} name="province" render={({ field }) => <Input label="Province" value={field.value} onChangeText={field.onChange} />} />
-            <Controller control={control} name="zipCode" render={({ field }) => <Input label="Zip Code" value={field.value} onChangeText={field.onChange} keyboardType="number-pad" />} />
-            <Controller control={control} name="country" render={({ field }) => <Input label="Country" value={field.value} onChangeText={field.onChange} />} />
-          </Card>
-
-          <Card style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Work</Text>
-            <Controller control={control} name="occupation" render={({ field }) => <Input label="Occupation" value={field.value} onChangeText={field.onChange} />} />
-            <Controller control={control} name="company" render={({ field }) => <Input label="Company" value={field.value} onChangeText={field.onChange} />} />
-          </Card>
-
-          <Card style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Emergency Contact</Text>
-            <Controller control={control} name="emergencyContactName" render={({ field }) => <Input label="Emergency Contact Name" value={field.value} onChangeText={field.onChange} />} />
-            <Controller control={control} name="emergencyContactNumber" render={({ field }) => <Input label="Emergency Contact Number" value={field.value} onChangeText={field.onChange} keyboardType="phone-pad" />} />
-            <Controller control={control} name="relationship" render={({ field }) => <Input label="Relationship" value={field.value} onChangeText={field.onChange} />} />
-          </Card>
-
-          <Card style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Other</Text>
             <Controller control={control} name="remarks" render={({ field }) => <Input label="Remarks" value={field.value} onChangeText={field.onChange} multiline numberOfLines={3} />} />
 
             <Text style={[styles.label, { color: theme.colors.textMuted }]}>Location (optional)</Text>

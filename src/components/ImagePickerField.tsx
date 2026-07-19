@@ -7,18 +7,11 @@ import type { PickedImage } from '../services/imageService';
 interface ImagePickerFieldProps {
   image: PickedImage | null;
   onCapture: () => void;
-  onPickFromGallery: () => void;
   onDelete: () => void;
   error?: string;
 }
 
-export function ImagePickerField({
-  image,
-  onCapture,
-  onPickFromGallery,
-  onDelete,
-  error,
-}: ImagePickerFieldProps) {
+export function ImagePickerField({ image, onCapture, onDelete, error }: ImagePickerFieldProps) {
   const { theme } = useTheme();
 
   return (
@@ -44,23 +37,13 @@ export function ImagePickerField({
         )}
       </View>
 
-      <View style={styles.actions}>
-        <Button
-          label={image ? 'Retake Photo' : 'Open Camera'}
-          onPress={onCapture}
-          variant="secondary"
-          style={styles.actionButton}
-        />
-        <Button
-          label="Upload From Gallery"
-          onPress={onPickFromGallery}
-          variant="secondary"
-          style={styles.actionButton}
-        />
-      </View>
-      {image ? (
-        <Button label="Delete Photo" onPress={onDelete} variant="ghost" />
-      ) : null}
+      <Button
+        label={image ? 'Retake Photo' : 'Open Camera'}
+        onPress={onCapture}
+        variant="secondary"
+        style={styles.actionButton}
+      />
+      {image ? <Button label="Delete Photo" onPress={onDelete} variant="ghost" /> : null}
 
       {error ? <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text> : null}
     </View>
@@ -79,7 +62,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   image: { width: '100%', height: '100%' },
-  actions: { flexDirection: 'row', gap: 10, marginBottom: 6 },
-  actionButton: { flex: 1 },
+  actionButton: { marginBottom: 6 },
   error: { fontSize: 12, marginTop: 4 },
 });

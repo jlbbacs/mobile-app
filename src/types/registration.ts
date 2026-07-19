@@ -13,18 +13,7 @@ export interface RegistrationFormValues {
   nationality?: string;
   phoneNumber: string;
   email?: string;
-  houseNumber?: string;
-  street?: string;
-  barangay?: string;
-  city?: string;
-  province?: string;
-  zipCode?: string;
-  country?: string;
-  occupation?: string;
-  company?: string;
-  emergencyContactName?: string;
-  emergencyContactNumber?: string;
-  relationship?: string;
+  completeAddress: string;
   remarks?: string;
 }
 
