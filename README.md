@@ -21,8 +21,7 @@ user interaction required.
 - React Native + Expo (TypeScript)
 - React Navigation (native-stack)
 - React Hook Form + Yup validation
-- expo-camera / expo-image-picker / expo-image-manipulator / expo-file-system
-- expo-location for optional GPS capture
+- expo-image-picker (camera capture) / expo-image-manipulator / expo-file-system
 - AsyncStorage-backed offline queue + NetInfo-triggered background sync
 - Backend: Google Apps Script (Sheets API + Drive API), see `/apps-script`
 
@@ -32,8 +31,8 @@ user interaction required.
 /src
   /components   Reusable UI (Button, Input, Dropdown, ImagePickerField, ...)
   /screens      Splash, Home, RegistrationForm, Success, Settings, Admin
-  /services     imageService, locationService, registrationService,
-                storageService, syncService, deviceInfoService, validationService
+  /services     imageService, registrationService, storageService, syncService,
+                deviceInfoService, validationService
   /hooks        useNetworkStatus, useOfflineQueue
   /context      ThemeContext (light/dark), SettingsContext
   /navigation   RootNavigator (typed stack)

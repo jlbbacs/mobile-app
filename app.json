@@ -9,9 +9,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "This app uses the camera to capture your profile photo for registration.",
-        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select a profile photo.",
-        "NSLocationWhenInUseUsageDescription": "This app can optionally record your location with your registration."
+        "NSCameraUsageDescription": "This app uses the camera to capture your profile photo for registration."
       }
     },
     "android": {
@@ -23,9 +21,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "permissions": [
-        "CAMERA",
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "CAMERA"
       ],
       "predictiveBackGestureEnabled": false
     },
@@ -34,21 +30,9 @@
     },
     "plugins": [
       [
-        "expo-camera",
-        {
-          "cameraPermission": "This app uses the camera to capture your profile photo for registration."
-        }
-      ],
-      [
         "expo-image-picker",
         {
-          "photosPermission": "This app needs access to your photo library to select a profile photo."
-        }
-      ],
-      [
-        "expo-location",
-        {
-          "locationWhenInUsePermission": "This app can optionally record your location with your registration."
+          "cameraPermission": "This app uses the camera to capture your profile photo for registration."
         }
       ]
     ]

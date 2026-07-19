@@ -7,14 +7,12 @@ export interface RegistrationFormValues {
   middleName?: string;
   lastName: string;
   age: string;
-  birthdate?: string;
   sex?: Sex;
   civilStatus?: CivilStatus;
   nationality?: string;
   phoneNumber: string;
   email?: string;
   completeAddress: string;
-  remarks?: string;
 }
 
 export interface DeviceMeta {
@@ -23,12 +21,7 @@ export interface DeviceMeta {
   appVersion: string;
 }
 
-export interface LocationMeta {
-  latitude?: number;
-  longitude?: number;
-}
-
-export interface RegistrationPayload extends RegistrationFormValues, DeviceMeta, LocationMeta {
+export interface RegistrationPayload extends RegistrationFormValues, DeviceMeta {
   imageBase64: string;
   imageFileName: string;
   imageMimeType: string;

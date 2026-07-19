@@ -90,6 +90,7 @@ curl -X POST "<your-web-app-url>" \
     "lastName": "Dela Cruz",
     "age": "30",
     "phoneNumber": "09171234567",
+    "completeAddress": "123 Rizal St, Barangay San Jose, Manila",
     "imageBase64": "'"$(base64 -w0 some-small-test.jpg)"'",
     "imageFileName": "test.jpg",
     "imageMimeType": "image/jpeg"

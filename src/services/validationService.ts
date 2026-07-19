@@ -15,7 +15,6 @@ export const registrationSchema: yup.ObjectSchema<RegistrationFormValues> = yup.
       const n = Number(value);
       return n >= 1 && n <= 120;
     }),
-  birthdate: yup.string().optional(),
   sex: yup.string().oneOf([...SEX_OPTIONS]).optional() as yup.Schema<
     RegistrationFormValues['sex']
   >,
@@ -29,5 +28,4 @@ export const registrationSchema: yup.ObjectSchema<RegistrationFormValues> = yup.
     .matches(/^\d+$/, 'Phone number must contain digits only.'),
   email: yup.string().trim().email('Enter a valid email address.').optional(),
   completeAddress: yup.string().trim().required('Complete address is required.'),
-  remarks: yup.string().trim().optional(),
 }) as yup.ObjectSchema<RegistrationFormValues>;

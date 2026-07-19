@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -17,7 +17,6 @@ import { LoadingOverlay } from '../components/LoadingOverlay';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { registrationSchema } from '../services/validationService';
 import { imageService, ImageValidationError, type PickedImage } from '../services/imageService';
-import { locationService } from '../services/locationService';
 import { deviceInfoService } from '../services/deviceInfoService';
 import { submitRegistration } from '../services/registrationService';
 import { storageService } from '../services/storageService';
@@ -33,14 +32,12 @@ const DEFAULT_VALUES: RegistrationFormValues = {
   middleName: '',
   lastName: '',
   age: '',
-  birthdate: '',
   sex: undefined,
   civilStatus: undefined,
   nationality: '',
   phoneNumber: '',
   email: '',
   completeAddress: '',
-  remarks: '',
 };
 
 export default function RegistrationFormScreen({ navigation }: Props) {
@@ -57,8 +54,6 @@ export default function RegistrationFormScreen({ navigation }: Props) {
 
   const [image, setImage] = useState<PickedImage | null>(null);
   const [imageError, setImageError] = useState<string | undefined>();
-  const [location, setLocation] = useState<{ latitude?: number; longitude?: number }>({});
-  const [locatingGps, setLocatingGps] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | undefined>();
   const submitLock = useRef(false);
@@ -73,16 +68,6 @@ export default function RegistrationFormScreen({ navigation }: Props) {
       setImage(compressed);
     } catch (err) {
       setImageError(err instanceof ImageValidationError ? err.message : 'Could not capture photo.');
-    }
-  };
-
-  const handleUseLocation = async () => {
-    setLocatingGps(true);
-    try {
-      const loc = await locationService.requestCurrentLocation();
-      setLocation(loc);
-    } finally {
-      setLocatingGps(false);
     }
   };
 
@@ -105,7 +90,6 @@ export default function RegistrationFormScreen({ navigation }: Props) {
       const payload = {
         ...values,
         ...deviceMeta,
-        ...location,
         imageBase64,
         imageFileName: fileName,
         imageMimeType: image.mimeType,
@@ -197,13 +181,6 @@ export default function RegistrationFormScreen({ navigation }: Props) {
             />
             <Controller
               control={control}
-              name="birthdate"
-              render={({ field }) => (
-                <Input label="Birthdate" placeholder="YYYY-MM-DD" value={field.value} onChangeText={field.onChange} />
-              )}
-            />
-            <Controller
-              control={control}
               name="sex"
               render={({ field }) => (
                 <Dropdown label="Sex" options={SEX_OPTIONS} value={field.value} onChange={field.onChange} />
@@ -266,25 +243,6 @@ export default function RegistrationFormScreen({ navigation }: Props) {
             />
           </Card>
 
-          <Card style={styles.section}>
-            <Controller control={control} name="remarks" render={({ field }) => <Input label="Remarks" value={field.value} onChangeText={field.onChange} multiline numberOfLines={3} />} />
-
-            <Text style={[styles.label, { color: theme.colors.textMuted }]}>Location (optional)</Text>
-            <View style={styles.locationRow}>
-              <Button
-                label={locatingGps ? 'Getting location...' : 'Use My Current Location'}
-                onPress={handleUseLocation}
-                variant="secondary"
-                loading={locatingGps}
-              />
-              {location.latitude !== undefined ? (
-                <Text style={{ color: theme.colors.textMuted, fontSize: 12, marginTop: 6 }}>
-                  {location.latitude?.toFixed(5)}, {location.longitude?.toFixed(5)}
-                </Text>
-              ) : null}
-            </View>
-          </Card>
-
           <Button label="Submit" onPress={handleSubmit(onSubmit)} loading={isSubmitting} style={styles.submitButton} />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -298,7 +256,5 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: '700', marginBottom: 16 },
   section: { marginBottom: 16 },
   sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
-  label: { fontSize: 13, marginTop: 4, marginBottom: 6, fontWeight: '500' },
-  locationRow: { marginBottom: 4 },
   submitButton: { marginTop: 4, marginBottom: 40 },
 });
