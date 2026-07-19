@@ -21,7 +21,7 @@ user interaction required.
 - React Native + Expo (TypeScript)
 - React Navigation (native-stack)
 - React Hook Form + Yup validation
-- expo-image-picker (camera capture) / expo-image-manipulator / expo-file-system
+- expo-image-picker (camera + gallery capture) / expo-image-manipulator (compression, cross-platform base64 output)
 - AsyncStorage-backed offline queue + NetInfo-triggered background sync
 - Backend: Google Apps Script (Sheets API + Drive API), see `/apps-script`
 

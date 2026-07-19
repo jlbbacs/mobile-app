@@ -9,7 +9,8 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "This app uses the camera to capture your profile photo for registration."
+        "NSCameraUsageDescription": "This app uses the camera to capture your profile photo for registration.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to upload a profile photo."
       }
     },
     "android": {
@@ -32,7 +33,8 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "This app uses the camera to capture your profile photo for registration."
+          "cameraPermission": "This app uses the camera to capture your profile photo for registration.",
+          "photosPermission": "This app needs access to your photo library to upload a profile photo."
         }
       ]
     ]

@@ -71,10 +71,23 @@ export default function RegistrationFormScreen({ navigation }: Props) {
     }
   };
 
+  const handlePickFromGallery = async () => {
+    try {
+      setImageError(undefined);
+      const picked = await imageService.pickFromGallery();
+      if (!picked) return;
+      const compressed = await imageService.compress(picked);
+      imageService.assertWithinSizeLimit(compressed);
+      setImage(compressed);
+    } catch (err) {
+      setImageError(err instanceof ImageValidationError ? err.message : 'Could not select photo.');
+    }
+  };
+
   const onSubmit = async (values: RegistrationFormValues) => {
     if (submitLock.current) return;
 
-    if (!image) {
+    if (!image || !image.base64) {
       setImageError('A profile photo is required.');
       return;
     }
@@ -83,14 +96,13 @@ export default function RegistrationFormScreen({ navigation }: Props) {
     submitLock.current = true;
     setIsSubmitting(true);
     try {
-      const imageBase64 = await imageService.toBase64(image.uri);
       const fileName = imageService.buildFileName(values.lastName, values.firstName, new Date());
       const deviceMeta = deviceInfoService.getDeviceMeta();
 
       const payload = {
         ...values,
         ...deviceMeta,
-        imageBase64,
+        imageBase64: image.base64,
         imageFileName: fileName,
         imageMimeType: image.mimeType,
       };
@@ -139,6 +151,7 @@ export default function RegistrationFormScreen({ navigation }: Props) {
             <ImagePickerField
               image={image}
               onCapture={handleCapture}
+              onPickFromGallery={handlePickFromGallery}
               onDelete={() => setImage(null)}
               error={imageError}
             />
