@@ -18,7 +18,7 @@ import { ErrorBanner } from '../components/ErrorBanner';
 import { registrationSchema } from '../services/validationService';
 import { imageService, ImageValidationError, type PickedImage } from '../services/imageService';
 import { deviceInfoService } from '../services/deviceInfoService';
-import { submitRegistration } from '../services/registrationService';
+import { submitRegistration, NetworkUnreachableError } from '../services/registrationService';
 import { storageService } from '../services/storageService';
 import { toFriendlyMessage } from '../utils/errorMessages';
 import { CIVIL_STATUS_OPTIONS, SEX_OPTIONS } from '../constants/config';
@@ -112,21 +112,28 @@ export default function RegistrationFormScreen({ navigation }: Props) {
         await storageService.incrementSubmissionCount();
         navigation.replace('Success', { result });
       } catch (err) {
-        const queued: QueuedSubmission = {
-          id: Crypto.randomUUID(),
-          createdAt: new Date().toISOString(),
-          payload,
-          status: 'pending',
-          attempts: 0,
-        };
-        await storageService.enqueue(queued);
-        navigation.replace('Success', {
-          result: {
-            success: true,
-            message:
-              'No connection right now — your registration was saved on this device and will upload automatically once you are back online.',
-          },
-        });
+        if (err instanceof NetworkUnreachableError) {
+          // Genuinely couldn't reach the server — safe to queue and reassure the user.
+          const queued: QueuedSubmission = {
+            id: Crypto.randomUUID(),
+            createdAt: new Date().toISOString(),
+            payload,
+            status: 'pending',
+            attempts: 0,
+          };
+          await storageService.enqueue(queued);
+          navigation.replace('Success', {
+            result: {
+              success: true,
+              message:
+                'No connection right now — your registration was saved on this device and will upload automatically once you are back online.',
+            },
+          });
+        } else {
+          // The server was reached but rejected the request — retrying with the
+          // same data won't help, so surface the real reason instead of hiding it.
+          throw err;
+        }
       }
     } catch (err) {
       setSubmitError(toFriendlyMessage(err));

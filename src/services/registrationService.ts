@@ -7,6 +7,14 @@ export class NoApiEndpointError extends Error {
   }
 }
 
+/** The request never reached the server at all (offline, DNS failure, CORS block, etc). Safe to queue and retry silently. */
+export class NetworkUnreachableError extends Error {
+  constructor(public readonly cause?: unknown) {
+    super('No internet connection or the server is unreachable.');
+  }
+}
+
+/** The server was reached but rejected or failed the request. Retrying with the same data won't help without a real fix. */
 export class ApiRequestError extends Error {
   constructor(message: string, public readonly cause?: unknown) {
     super(message);
@@ -40,7 +48,7 @@ export async function submitRegistration(
       body: JSON.stringify(body),
     });
   } catch (err) {
-    throw new ApiRequestError('No internet connection or the server is unreachable.', err);
+    throw new NetworkUnreachableError(err);
   }
 
   if (!response.ok) {
