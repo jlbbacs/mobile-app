@@ -2,16 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
+import { useSettings } from '../context/SettingsContext';
 import { useOfflineQueue } from '../hooks/useOfflineQueue';
 import { storageService } from '../services/storageService';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
-import { DEFAULT_ADMIN_PASSWORD } from '../constants/config';
 import type { AdminStats } from '../types/settings';
 
 export default function AdminScreen() {
   const { theme } = useTheme();
+  const { settings } = useSettings();
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | undefined>();
@@ -24,7 +25,7 @@ export default function AdminScreen() {
   }, [unlocked, queue]);
 
   const handleUnlock = () => {
-    if (password === DEFAULT_ADMIN_PASSWORD) {
+    if (password === settings.adminPassword) {
       setUnlocked(true);
       setError(undefined);
     } else {

@@ -17,12 +17,28 @@ export default function SettingsScreen() {
   const [googleDriveFolderId, setGoogleDriveFolderId] = useState(settings.googleDriveFolderId);
   const [saved, setSaved] = useState(false);
 
+  const [adminPassword, setAdminPassword] = useState(settings.adminPassword);
+  const [adminError, setAdminError] = useState<string | undefined>();
+  const [adminSaved, setAdminSaved] = useState(false);
+
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
   const handleSave = async () => {
     await updateSettings({ apiEndpoint: apiEndpoint.trim(), googleSheetUrl: googleSheetUrl.trim(), googleDriveFolderId: googleDriveFolderId.trim() });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleSaveAdminPassword = async () => {
+    const trimmed = adminPassword.trim();
+    if (!trimmed) {
+      setAdminError('Password cannot be empty.');
+      return;
+    }
+    setAdminError(undefined);
+    await updateSettings({ adminPassword: trimmed });
+    setAdminSaved(true);
+    setTimeout(() => setAdminSaved(false), 2000);
   };
 
   return (
@@ -71,6 +87,18 @@ export default function SettingsScreen() {
             variant="ghost"
             style={styles.systemButton}
           />
+        </Card>
+
+        <Card style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Admin</Text>
+          <Input
+            label="Admin Password"
+            secureTextEntry
+            value={adminPassword}
+            onChangeText={setAdminPassword}
+            error={adminError}
+          />
+          <Button label={adminSaved ? 'Saved ✓' : 'Save'} onPress={handleSaveAdminPassword} />
         </Card>
 
         <Card style={styles.section}>

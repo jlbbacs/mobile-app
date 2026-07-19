@@ -3,6 +3,7 @@ export interface AppSettings {
   googleSheetUrl: string;
   googleDriveFolderId: string;
   themeOverride: 'system' | 'light' | 'dark';
+  adminPassword: string;
 }
 
 export interface AdminStats {

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS } from '../constants/config';
+import { STORAGE_KEYS, DEFAULT_ADMIN_PASSWORD } from '../constants/config';
 import { DEFAULT_API_ENDPOINT, DEFAULT_GOOGLE_SHEET_URL, DEFAULT_DRIVE_FOLDER_ID } from '../constants/env';
 import type { AppSettings, AdminStats } from '../types/settings';
 import type { QueuedSubmission } from '../types/registration';
@@ -23,6 +23,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   googleSheetUrl: DEFAULT_GOOGLE_SHEET_URL,
   googleDriveFolderId: DEFAULT_DRIVE_FOLDER_ID,
   themeOverride: 'system',
+  adminPassword: DEFAULT_ADMIN_PASSWORD,
 };
 
 export const storageService = {
