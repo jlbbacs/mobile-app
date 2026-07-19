@@ -30,9 +30,13 @@ export async function submitRegistration(
 
   let response: Response;
   try {
+    // Apps Script Web Apps don't handle CORS preflight requests, which the
+    // browser triggers for a "Content-Type: application/json" POST. Sending
+    // "text/plain" instead avoids the preflight (Code.gs still JSON.parses
+    // the raw body regardless of the declared content type).
     response = await fetch(apiEndpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(body),
     });
   } catch (err) {
