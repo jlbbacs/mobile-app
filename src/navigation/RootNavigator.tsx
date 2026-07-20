@@ -8,6 +8,10 @@ import RegistrationFormScreen from '../screens/RegistrationFormScreen';
 import SuccessScreen from '../screens/SuccessScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AdminScreen from '../screens/AdminScreen';
+import ScanScreen from '../screens/ScanScreen';
+import SearchScreen from '../screens/SearchScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import EditRegistrationScreen from '../screens/EditRegistrationScreen';
 import type { RootStackParamList } from '../types/navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -43,6 +47,10 @@ export default function RootNavigator() {
         <Stack.Screen name="Success" component={SuccessScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
         <Stack.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin' }} />
+        <Stack.Screen name="Scan" component={ScanScreen} options={{ title: 'Scan QR Code' }} />
+        <Stack.Screen name="Search" component={SearchScreen} options={{ title: 'Search' }} />
+        <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
+        <Stack.Screen name="EditRegistration" component={EditRegistrationScreen} options={{ title: 'Edit Record' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -34,6 +34,20 @@ export default function HomeScreen({ navigation }: Props) {
           onPress={() => navigation.navigate('RegistrationForm')}
           style={styles.primaryAction}
         />
+        <View style={styles.secondaryRow}>
+          <Button
+            label="Scan QR Code"
+            variant="secondary"
+            onPress={() => navigation.navigate('Scan')}
+            style={styles.secondaryButton}
+          />
+          <Button
+            label="Search Records"
+            variant="secondary"
+            onPress={() => navigation.navigate('Search')}
+            style={styles.secondaryButton}
+          />
+        </View>
 
         {pendingCount > 0 ? (
           <Card style={styles.pendingCard}>
@@ -60,7 +74,9 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   title: { fontSize: 28, fontWeight: '700' },
   subtitle: { fontSize: 15, marginBottom: 28, lineHeight: 21 },
-  primaryAction: { marginBottom: 16 },
+  primaryAction: { marginBottom: 12 },
+  secondaryRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
+  secondaryButton: { flex: 1 },
   pendingCard: { marginBottom: 16 },
   adminLink: { alignSelf: 'center', marginTop: 24, padding: 8 },
 });

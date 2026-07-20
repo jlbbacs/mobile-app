@@ -59,6 +59,23 @@ change `Code.gs` later:
 This keeps the same URL, so you don't need to update the app's Settings
 again.
 
+## Upgrading from v1 to v2 (QR code system)
+
+v2 of `Code.gs` adds Registration IDs, QR code generation, and the
+lookup/search/update/stats API. To upgrade an existing v1 deployment:
+
+1. **Delete (or rename) the old "Registrations" tab** in your spreadsheet —
+   v2 uses different columns (Registration ID, QR Code URL, Status) and
+   will recreate the tab with the new headers on the first submission.
+   Copy out any rows you want to keep first.
+2. Replace the entire script with the new `apps-script/Code.gs` and save.
+3. Re-deploy as a **New version** (steps above).
+4. Google will prompt you to **re-authorize** — v2 fetches QR images with
+   `UrlFetchApp`, which needs one extra permission ("Connect to an external
+   service"). Approve it the same way as the original authorization.
+5. QR PNGs are stored in a new **"QR Codes"** Drive folder, created
+   automatically on first use.
+
 ## Security hardening
 
 By default, "Who has access: Anyone" means anyone with the URL can POST to

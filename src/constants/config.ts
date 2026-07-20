@@ -4,7 +4,14 @@ export const STORAGE_KEYS = {
   FORM_DRAFT: 'app.formDraft.v1',
   ADMIN_STATS: 'app.adminStats.v1',
   THEME_OVERRIDE: 'app.themeOverride.v1',
+  SCAN_HISTORY: 'app.scanHistory.v1',
 };
+
+/** Accepts REG-YYYYMMDD-NNNNNN ids and UUIDs — the only payloads a valid QR may carry. */
+export const REGISTRATION_ID_PATTERN =
+  /^(REG-\d{8}-\d{6}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+
+export const SCAN_HISTORY_LIMIT = 50;
 
 export const IMAGE_CONSTRAINTS = {
   MAX_SIZE_BYTES: 10 * 1024 * 1024, // 10MB

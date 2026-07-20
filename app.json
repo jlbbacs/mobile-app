@@ -36,6 +36,12 @@
           "cameraPermission": "This app uses the camera to capture your profile photo for registration.",
           "photosPermission": "This app needs access to your photo library to upload a profile photo."
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "This app uses the camera to scan registration QR codes."
+        }
       ]
     ]
   }

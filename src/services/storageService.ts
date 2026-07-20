@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS, DEFAULT_ADMIN_PASSWORD } from '../constants/config';
+import { STORAGE_KEYS, DEFAULT_ADMIN_PASSWORD, SCAN_HISTORY_LIMIT } from '../constants/config';
 import { DEFAULT_API_ENDPOINT, DEFAULT_GOOGLE_SHEET_URL, DEFAULT_DRIVE_FOLDER_ID } from '../constants/env';
 import type { AppSettings, AdminStats } from '../types/settings';
-import type { QueuedSubmission } from '../types/registration';
+import type { QueuedSubmission, ScanHistoryEntry } from '../types/registration';
 
 async function readJson<T>(key: string): Promise<T | null> {
   const raw = await AsyncStorage.getItem(key);
@@ -90,5 +90,21 @@ export const storageService = {
       submissionCount: stats.submissionCount + 1,
       lastUploadAt: new Date().toISOString(),
     });
+  },
+
+  async getScanHistory(): Promise<ScanHistoryEntry[]> {
+    const stored = await readJson<ScanHistoryEntry[]>(STORAGE_KEYS.SCAN_HISTORY);
+    return stored ?? [];
+  },
+
+  async addScanHistoryEntry(registrationId: string): Promise<void> {
+    const history = await this.getScanHistory();
+    const withoutDuplicate = history.filter((entry) => entry.registrationId !== registrationId);
+    withoutDuplicate.unshift({ registrationId, scannedAt: new Date().toISOString() });
+    await writeJson(STORAGE_KEYS.SCAN_HISTORY, withoutDuplicate.slice(0, SCAN_HISTORY_LIMIT));
+  },
+
+  async clearScanHistory(): Promise<void> {
+    await AsyncStorage.removeItem(STORAGE_KEYS.SCAN_HISTORY);
   },
 };

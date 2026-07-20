@@ -1,5 +1,10 @@
 import { API_TOKEN } from '../constants/env';
-import type { RegistrationPayload, SubmitResult } from '../types/registration';
+import type {
+  DashboardStats,
+  RegistrationPayload,
+  RegistrationRecord,
+  SubmitResult,
+} from '../types/registration';
 
 export class NoApiEndpointError extends Error {
   constructor() {
@@ -41,21 +46,24 @@ export function normalizeAppsScriptEndpoint(raw: string): string | null {
   return value;
 }
 
+interface ApiResponse extends SubmitResult {
+  record?: RegistrationRecord;
+  records?: RegistrationRecord[];
+  stats?: DashboardStats;
+}
+
 /**
- * Submits a registration to the configured Google Apps Script Web App endpoint.
- * The endpoint is expected to accept a single JSON POST body and respond with
- * { success: boolean, imageUrl?: string, message?: string }.
+ * Posts one action to the Apps Script Web App and returns the parsed JSON.
+ * All API traffic funnels through here so endpoint normalization, the CORS
+ * workaround, and error classification stay in one place.
  */
-export async function submitRegistration(
-  rawApiEndpoint: string,
-  payload: RegistrationPayload
-): Promise<SubmitResult> {
+async function postAction(rawApiEndpoint: string, body: Record<string, unknown>): Promise<ApiResponse> {
   const apiEndpoint = normalizeAppsScriptEndpoint(rawApiEndpoint);
   if (!apiEndpoint) {
     throw new NoApiEndpointError();
   }
 
-  const body = API_TOKEN ? { ...payload, apiKey: API_TOKEN } : payload;
+  const fullBody = API_TOKEN ? { ...body, apiKey: API_TOKEN } : body;
 
   let response: Response;
   try {
@@ -66,7 +74,7 @@ export async function submitRegistration(
     response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(fullBody),
     });
   } catch (err) {
     throw new NetworkUnreachableError(err);
@@ -76,7 +84,7 @@ export async function submitRegistration(
     throw new ApiRequestError(`Server error (HTTP ${response.status}).`);
   }
 
-  let json: SubmitResult;
+  let json: ApiResponse;
   try {
     json = await response.json();
   } catch (err) {
@@ -84,8 +92,53 @@ export async function submitRegistration(
   }
 
   if (!json.success) {
-    throw new ApiRequestError(json.message ?? 'Google Sheet or Drive rejected the submission.');
+    throw new ApiRequestError(json.message ?? 'The server rejected the request.');
   }
 
   return json;
+}
+
+export async function submitRegistration(
+  apiEndpoint: string,
+  payload: RegistrationPayload
+): Promise<SubmitResult> {
+  return postAction(apiEndpoint, { action: 'register', ...payload });
+}
+
+export async function lookupRegistration(
+  apiEndpoint: string,
+  registrationId: string
+): Promise<RegistrationRecord> {
+  const json = await postAction(apiEndpoint, { action: 'lookup', registrationId });
+  if (!json.record) throw new ApiRequestError('Record Not Found');
+  return json.record;
+}
+
+export async function searchRegistrations(
+  apiEndpoint: string,
+  query: string
+): Promise<RegistrationRecord[]> {
+  const json = await postAction(apiEndpoint, { action: 'search', query });
+  return json.records ?? [];
+}
+
+export async function updateRegistration(
+  apiEndpoint: string,
+  registrationId: string,
+  fields: Partial<RegistrationRecord> & { imageBase64?: string; imageFileName?: string; imageMimeType?: string }
+): Promise<RegistrationRecord> {
+  const json = await postAction(apiEndpoint, { action: 'update', registrationId, ...fields });
+  if (!json.record) throw new ApiRequestError('Record Not Found');
+  return json.record;
+}
+
+export async function fetchDashboardStats(apiEndpoint: string): Promise<DashboardStats> {
+  const json = await postAction(apiEndpoint, { action: 'stats' });
+  if (!json.stats) throw new ApiRequestError('Received an unexpected response from the server.');
+  return json.stats;
+}
+
+export async function listRegistrations(apiEndpoint: string): Promise<RegistrationRecord[]> {
+  const json = await postAction(apiEndpoint, { action: 'list' });
+  return json.records ?? [];
 }
