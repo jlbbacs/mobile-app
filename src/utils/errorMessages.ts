@@ -3,7 +3,7 @@ import { ImageValidationError } from '../services/imageService';
 
 export function toFriendlyMessage(error: unknown): string {
   if (error instanceof NoApiEndpointError) {
-    return 'The app is not configured yet. Go to Settings and set your Google Sheet API endpoint.';
+    return error.message;
   }
   if (error instanceof ImageValidationError) {
     return error.message;

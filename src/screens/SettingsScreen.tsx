@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { useTheme } from '../context/ThemeContext';
 import { useSettings } from '../context/SettingsContext';
+import { normalizeAppsScriptEndpoint } from '../services/registrationService';
 import { Input } from '../components/Input';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -16,6 +17,7 @@ export default function SettingsScreen() {
   const [googleSheetUrl, setGoogleSheetUrl] = useState(settings.googleSheetUrl);
   const [googleDriveFolderId, setGoogleDriveFolderId] = useState(settings.googleDriveFolderId);
   const [saved, setSaved] = useState(false);
+  const [endpointError, setEndpointError] = useState<string | undefined>();
 
   const [adminPassword, setAdminPassword] = useState(settings.adminPassword);
   const [adminError, setAdminError] = useState<string | undefined>();
@@ -24,7 +26,23 @@ export default function SettingsScreen() {
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
   const handleSave = async () => {
-    await updateSettings({ apiEndpoint: apiEndpoint.trim(), googleSheetUrl: googleSheetUrl.trim(), googleDriveFolderId: googleDriveFolderId.trim() });
+    const trimmedEndpoint = apiEndpoint.trim();
+    const normalizedEndpoint = trimmedEndpoint ? normalizeAppsScriptEndpoint(trimmedEndpoint) : '';
+    if (trimmedEndpoint && !normalizedEndpoint) {
+      setEndpointError(
+        'This does not look like a valid Web App URL. Paste the full https://script.google.com/macros/s/.../exec address.'
+      );
+      return;
+    }
+    setEndpointError(undefined);
+    if (normalizedEndpoint && normalizedEndpoint !== trimmedEndpoint) {
+      setApiEndpoint(normalizedEndpoint);
+    }
+    await updateSettings({
+      apiEndpoint: normalizedEndpoint ?? '',
+      googleSheetUrl: googleSheetUrl.trim(),
+      googleDriveFolderId: googleDriveFolderId.trim(),
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -54,6 +72,7 @@ export default function SettingsScreen() {
             value={apiEndpoint}
             onChangeText={setApiEndpoint}
             autoCapitalize="none"
+            error={endpointError}
           />
           <Input
             label="Google Sheet URL"

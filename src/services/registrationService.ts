@@ -3,7 +3,9 @@ import type { RegistrationPayload, SubmitResult } from '../types/registration';
 
 export class NoApiEndpointError extends Error {
   constructor() {
-    super('No API endpoint configured. Set it in Settings first.');
+    super(
+      'No valid API endpoint configured. Open Settings and paste the full Web App URL (https://script.google.com/macros/s/.../exec).'
+    );
   }
 }
 
@@ -22,14 +24,33 @@ export class ApiRequestError extends Error {
 }
 
 /**
+ * Accepts the full Web App URL, or forgiving variants users actually paste:
+ * a bare deployment ID ("AKfycb...") or a full URL missing the /exec suffix.
+ * Returns a usable absolute URL, or null if the value can't be salvaged.
+ */
+export function normalizeAppsScriptEndpoint(raw: string): string | null {
+  const value = raw.trim();
+  if (!value) return null;
+  if (/^AKfycb[\w-]+$/.test(value)) {
+    return `https://script.google.com/macros/s/${value}/exec`;
+  }
+  if (!/^https?:\/\//i.test(value)) return null;
+  if (/script\.google\.com\/macros\/s\/[\w-]+$/.test(value)) {
+    return `${value}/exec`;
+  }
+  return value;
+}
+
+/**
  * Submits a registration to the configured Google Apps Script Web App endpoint.
  * The endpoint is expected to accept a single JSON POST body and respond with
  * { success: boolean, imageUrl?: string, message?: string }.
  */
 export async function submitRegistration(
-  apiEndpoint: string,
+  rawApiEndpoint: string,
   payload: RegistrationPayload
 ): Promise<SubmitResult> {
+  const apiEndpoint = normalizeAppsScriptEndpoint(rawApiEndpoint);
   if (!apiEndpoint) {
     throw new NoApiEndpointError();
   }
