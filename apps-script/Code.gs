@@ -7,7 +7,9 @@
  * v2 adds a QR-code registration system on top of v1:
  *  - Every registration gets a unique Registration ID (REG-YYYYMMDD-NNNNNN).
  *  - A QR code PNG (containing ONLY the Registration ID, never personal
- *    data) is generated and stored in a "QR Codes" Drive folder.
+ *    data) is generated and stored in a "QR Codes" Drive folder. The sheet
+ *    stores both the plain URL ("QR Code URL", read by the app) and a
+ *    visible thumbnail via an =IMAGE() formula ("QR Code Image").
  *  - The Web App is now action-based. POST a JSON body with an "action"
  *    field:
  *      register (default) — save a new registration
@@ -42,6 +44,7 @@ var SHEET_HEADERS = [
   'Complete Address',
   'Google Drive Image URL',
   'QR Code URL',
+  'QR Code Image',
   'Status',
   'Device Model',
   'OS Version',
@@ -117,6 +120,7 @@ function handleRegister(data) {
     data.completeAddress || '',
     imageUrl,
     qrCodeUrl,
+    qrCodeUrl ? '=IMAGE("' + qrCodeUrl + '",4,80,80)' : '',
     'Active',
     data.deviceModel || '',
     data.osVersion || '',

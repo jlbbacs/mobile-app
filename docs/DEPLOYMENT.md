@@ -76,6 +76,18 @@ lookup/search/update/stats API. To upgrade an existing v1 deployment:
 5. QR PNGs are stored in a new **"QR Codes"** Drive folder, created
    automatically on first use.
 
+If you already upgraded to an earlier v2 build (before the "QR Code Image"
+column was added), just repeat steps 2–3 with the latest `Code.gs` and
+delete the "Registrations" tab again so the new column gets created.
+
+## Viewing the QR code in the Sheet
+
+Each row has two QR-related columns: **"QR Code URL"** (plain link, read by
+the app) and **"QR Code Image"** (an `=IMAGE(...)` formula that renders the
+actual QR code as a small thumbnail directly in the cell). If the thumbnail
+shows `#N/A` instead of an image, the QR upload likely failed for that row —
+re-open the row's "QR Code URL" link to check it's a valid image.
+
 ## Security hardening
 
 By default, "Who has access: Anyone" means anyone with the URL can POST to
