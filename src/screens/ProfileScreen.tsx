@@ -26,6 +26,8 @@ export default function ProfileScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
   const [wasOffline, setWasOffline] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadFeedback, setDownloadFeedback] = useState<{ success: boolean; message: string } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -61,6 +63,15 @@ export default function ProfileScreen({ navigation, route }: Props) {
   const fullName = record
     ? [record.firstName, record.middleName, record.lastName].filter(Boolean).join(' ')
     : '';
+
+  const handleDownload = async () => {
+    if (!record) return;
+    setDownloading(true);
+    setDownloadFeedback(null);
+    const outcome = await qrService.download(record.registrationId, record.qrCodeUrl);
+    setDownloadFeedback(outcome);
+    setDownloading(false);
+  };
 
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]}>
@@ -110,6 +121,16 @@ export default function ProfileScreen({ navigation, route }: Props) {
                 style={styles.qrImage}
                 resizeMode="contain"
               />
+              {downloadFeedback ? (
+                <Text
+                  style={[
+                    styles.downloadFeedback,
+                    { color: downloadFeedback.success ? theme.colors.success : theme.colors.error },
+                  ]}
+                >
+                  {downloadFeedback.message}
+                </Text>
+              ) : null}
             </Card>
 
             <View style={styles.buttonGrid}>
@@ -119,9 +140,10 @@ export default function ProfileScreen({ navigation, route }: Props) {
                 style={styles.gridButton}
               />
               <Button
-                label="Download QR Code"
+                label="Save QR Code"
                 variant="secondary"
-                onPress={() => void qrService.download(record.registrationId, record.qrCodeUrl)}
+                loading={downloading}
+                onPress={() => void handleDownload()}
                 style={styles.gridButton}
               />
               <Button
@@ -178,6 +200,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', paddingVertical: 8, gap: 12 },
   qrCard: { alignItems: 'center' },
   qrImage: { width: 180, height: 180, backgroundColor: '#FFFFFF', borderRadius: 8 },
+  downloadFeedback: { fontSize: 12, marginTop: 10, textAlign: 'center' },
   buttonGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 32 },
   gridButton: { flexBasis: '47%', flexGrow: 1 },
 });

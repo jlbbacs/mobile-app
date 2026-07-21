@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -16,6 +16,18 @@ export default function SuccessScreen({ navigation, route }: Props) {
   const result = route.params?.result;
   const registrationId = result?.registrationId;
   const message = result?.message ?? 'Your information has been saved.';
+
+  const [downloading, setDownloading] = useState(false);
+  const [downloadFeedback, setDownloadFeedback] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleDownload = async () => {
+    if (!registrationId) return;
+    setDownloading(true);
+    setDownloadFeedback(null);
+    const outcome = await qrService.download(registrationId, result?.qrCodeUrl);
+    setDownloadFeedback(outcome);
+    setDownloading(false);
+  };
 
   const checklist = registrationId
     ? [
@@ -55,10 +67,11 @@ export default function SuccessScreen({ navigation, route }: Props) {
             />
             <View style={styles.qrActions}>
               <Button
-                label="Download"
+                label="Save"
                 variant="secondary"
+                loading={downloading}
                 style={styles.qrActionButton}
-                onPress={() => void qrService.download(registrationId, result?.qrCodeUrl)}
+                onPress={() => void handleDownload()}
               />
               <Button
                 label="Share"
@@ -73,6 +86,16 @@ export default function SuccessScreen({ navigation, route }: Props) {
                 onPress={() => void qrService.print(registrationId)}
               />
             </View>
+            {downloadFeedback ? (
+              <Text
+                style={[
+                  styles.downloadFeedback,
+                  { color: downloadFeedback.success ? theme.colors.success : theme.colors.error },
+                ]}
+              >
+                {downloadFeedback.message}
+              </Text>
+            ) : null}
           </Card>
         ) : null}
 
@@ -105,8 +128,9 @@ const styles = StyleSheet.create({
   qrLabel: { fontSize: 13, fontWeight: '500' },
   registrationId: { fontSize: 17, fontWeight: '700', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
   qrImage: { width: 200, height: 200, backgroundColor: '#FFFFFF', borderRadius: 8 },
-  qrActions: { flexDirection: 'row', gap: 8, marginTop: 14 },
-  qrActionButton: { flex: 1, minHeight: 44 },
+  qrActions: { flexDirection: 'row', gap: 8, marginTop: 14, alignSelf: 'stretch' },
+  qrActionButton: { flex: 1, minHeight: 44, paddingHorizontal: 4 },
+  downloadFeedback: { fontSize: 12, marginTop: 10, textAlign: 'center' },
   actions: { width: '100%', marginTop: 24, gap: 12 },
   button: { width: '100%' },
 });

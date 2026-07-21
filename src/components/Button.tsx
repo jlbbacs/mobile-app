@@ -57,7 +57,10 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={textColor} />
       ) : (
-        <Text style={[styles.label, { color: textColor, fontSize: theme.typography.button.fontSize, fontWeight: theme.typography.button.fontWeight }]}>
+        <Text
+          numberOfLines={1}
+          style={[styles.label, { color: textColor, fontSize: theme.typography.button.fontSize, fontWeight: theme.typography.button.fontWeight }]}
+        >
           {label}
         </Text>
       )}

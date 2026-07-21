@@ -22,7 +22,9 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "permissions": [
-        "CAMERA"
+        "CAMERA",
+        "READ_MEDIA_IMAGES",
+        "WRITE_EXTERNAL_STORAGE"
       ],
       "predictiveBackGestureEnabled": false
     },
@@ -41,6 +43,13 @@
         "expo-camera",
         {
           "cameraPermission": "This app uses the camera to scan registration QR codes."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "This app needs access to your photos to save downloaded QR codes.",
+          "savePhotosPermission": "This app needs permission to save QR codes to your photos."
         }
       ]
     ]

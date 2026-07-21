@@ -1,5 +1,7 @@
-import { Linking, Share } from 'react-native';
+import { Linking, Platform, Share } from 'react-native';
 import * as Print from 'expo-print';
+import { File, Paths } from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import type { RegistrationRecord } from '../types/registration';
 
 /**
@@ -11,10 +13,48 @@ export function qrImageUrl(registrationId: string, size = 500): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(registrationId)}`;
 }
 
+export interface DownloadResult {
+  success: boolean;
+  message: string;
+}
+
 export const qrService = {
-  /** Opens the QR PNG (Drive copy when available) so the user can save it. */
-  async download(registrationId: string, qrCodeUrl?: string): Promise<void> {
-    await Linking.openURL(qrCodeUrl || qrImageUrl(registrationId));
+  /** Actually saves the QR PNG to the device (Photos on native, a real file download on web). */
+  async download(registrationId: string, qrCodeUrl?: string): Promise<DownloadResult> {
+    const url = qrCodeUrl || qrImageUrl(registrationId);
+    const fileName = `${registrationId}.png`;
+
+    if (Platform.OS === 'web') {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = objectUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(objectUrl);
+        return { success: true, message: 'QR code downloaded.' };
+      } catch (err) {
+        await Linking.openURL(url);
+        return { success: false, message: 'Could not download directly, so it was opened in a new tab instead.' };
+      }
+    }
+
+    const permission = await MediaLibrary.requestPermissionsAsync();
+    if (!permission.granted) {
+      return { success: false, message: 'Photo library permission was denied, so the QR code could not be saved.' };
+    }
+    try {
+      const destination = new File(Paths.cache, fileName);
+      const file = await File.downloadFileAsync(url, destination, { idempotent: true });
+      await MediaLibrary.saveToLibraryAsync(file.uri);
+      return { success: true, message: 'QR code saved to your photos.' };
+    } catch (err) {
+      return { success: false, message: 'Could not save the QR code. Please try again.' };
+    }
   },
 
   async share(registrationId: string, qrCodeUrl?: string): Promise<void> {
