@@ -1,4 +1,4 @@
-# Personal Information Collection App
+# RCPOS App
 
 A React Native (Expo) mobile app for collecting personal registration data
 with a photo, storing the photo in Google Drive, and appending the record to

@@ -22,9 +22,9 @@ export default function SplashScreen({ navigation }: Props) {
     <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
       <Animated.View style={{ opacity, alignItems: 'center' }}>
         <View style={styles.logoCircle}>
-          <Text style={styles.logoText}>PI</Text>
+          <Text style={styles.logoText}>RC</Text>
         </View>
-        <Text style={styles.title}>Personal Information{'\n'}Collection App</Text>
+        <Text style={styles.title}>RCPOS App</Text>
       </Animated.View>
     </View>
   );

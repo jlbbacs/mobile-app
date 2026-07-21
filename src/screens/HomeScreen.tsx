@@ -24,7 +24,7 @@ export default function HomeScreen({ navigation }: Props) {
       >
         <View style={styles.header}>
           <View style={[styles.brandMark, { backgroundColor: theme.colors.primary }]}>
-            <Text style={styles.brandMarkText}>PI</Text>
+            <Text style={styles.brandMarkText}>RC</Text>
           </View>
           <Pressable
             onPress={() => navigation.navigate('Settings')}
