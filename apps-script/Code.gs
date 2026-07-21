@@ -92,6 +92,23 @@ function doGet() {
   return jsonResponse({ success: true, message: 'Personal Information Collection App API is running.' });
 }
 
+/**
+ * Run this manually from the Apps Script editor (select it in the function
+ * dropdown next to "Debug", then click "Run") if QR codes are coming back
+ * empty. Running a function directly — instead of through the deployed Web
+ * App — is what actually triggers Google's authorization prompt for the
+ * "connect to an external service" permission that QR generation needs.
+ * Check View > Logs afterward for the result.
+ */
+function testQrGeneration() {
+  var url = generateQrCode('TEST-0000');
+  if (url) {
+    Logger.log('SUCCESS: ' + url);
+  } else {
+    Logger.log('FAILED: see the error above, or re-run after authorizing.');
+  }
+}
+
 // ---------------------------------------------------------------- register
 
 function handleRegister(data) {
@@ -172,13 +189,17 @@ function generateQrCode(registrationId) {
       'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' +
       encodeURIComponent(registrationId);
     var response = UrlFetchApp.fetch(qrApi, { muteHttpExceptions: true });
-    if (response.getResponseCode() !== 200) return '';
+    if (response.getResponseCode() !== 200) {
+      console.error('QR fetch returned HTTP ' + response.getResponseCode() + ' for ' + registrationId);
+      return '';
+    }
     var blob = response.getBlob().setName(registrationId + '.png');
     var folder = getOrCreateFolderByName(QR_FOLDER_NAME);
     var file = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     return 'https://drive.google.com/uc?id=' + file.getId();
   } catch (err) {
+    console.error('generateQrCode failed for ' + registrationId + ': ' + err.message);
     return '';
   }
 }
